@@ -54,22 +54,6 @@ public class MavenCoordinatesTest {
   }
 
   @Test
-  public void testRepositoryDefaultsToCentral() {
-    MavenCoordinates mavenCoordinates = new MavenCoordinates("b", "c");
-    assertThat(mavenCoordinates.getRepository(), is(MavenCoordinates.MAVEN_CENTRAL_REPO));
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void testSetRepositoryNull() {
-    new MavenCoordinates.Builder().setRepository(null);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testSetEmptyRepository() {
-    new MavenCoordinates.Builder().setRepository("");
-  }
-
-  @Test
   public void testVersionDefaultsToLatest() {
     MavenCoordinates mavenCoordinates = new MavenCoordinates("groupId", "artifactId");
     assertThat(mavenCoordinates.getVersion(), is(MavenCoordinates.LATEST_VERSION));

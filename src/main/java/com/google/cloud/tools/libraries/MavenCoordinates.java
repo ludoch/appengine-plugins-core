@@ -26,9 +26,7 @@ public class MavenCoordinates {
 
   public static final String LATEST_VERSION = "LATEST";
   public static final String JAR_TYPE = "jar";
-  public static final String MAVEN_CENTRAL_REPO = "central";
 
-  private String repository = MAVEN_CENTRAL_REPO;
   private String groupId;
   private String artifactId;
   private String version = LATEST_VERSION;
@@ -72,14 +70,6 @@ public class MavenCoordinates {
   }
 
   /**
-   * @return the URI or the identifier of the repository used to download the artifact from, never
-   *         <code>null</code>
-   */
-  public String getRepository() {
-    return repository;
-  }
-
-  /**
    * @return the Maven group ID, never <code>null</code>
    */
   public String getGroupId() {
@@ -95,8 +85,8 @@ public class MavenCoordinates {
 
   @Override
   public String toString() {
-    return MessageFormat.format("MavenCoordinates [repository={0}, {1}:{2}:{3}:{4}:{5}]",
-                                repository, groupId, artifactId, type, classifier, version);
+    return MessageFormat.format("MavenCoordinates [repository={0}, {1}:{2}:{3}:{4}]",
+                                groupId, artifactId, type, classifier, version);
   }
   
   @Override 
@@ -119,7 +109,6 @@ public class MavenCoordinates {
     Builder builder = new Builder();
     builder.groupId = groupId;
     builder.artifactId = artifactId;
-    builder.repository = repository;
     builder.version = version;
     builder.type = type;
     builder.classifier = classifier;
@@ -127,7 +116,6 @@ public class MavenCoordinates {
   }
   
   public static class Builder {
-    private String repository = MAVEN_CENTRAL_REPO;
     private String groupId;
     private String artifactId;
     private String version = LATEST_VERSION;
@@ -136,7 +124,6 @@ public class MavenCoordinates {
 
     public MavenCoordinates build() {
       MavenCoordinates coordinates = new MavenCoordinates(groupId, artifactId); 
-      coordinates.repository = repository;
       coordinates.version = version;
       coordinates.type = type;
       coordinates.classifier = classifier;
@@ -162,17 +149,6 @@ public class MavenCoordinates {
       this.artifactId = artifactId;
       return this;
     }    
-    
-    /**
-     * @param repository the URI or the identifier of the repository used to download the artifact
-     *        from. Cannot be <code>null</code> or empty string.
-     */
-    public Builder setRepository(String repository) {
-      Preconditions.checkNotNull(repository, "repository null");
-      Preconditions.checkArgument(!repository.isEmpty(), "repository is empty");
-      this.repository = repository;
-      return this;
-    }
     
     /**
      * @param type the Maven packaging type, defaults to <code>jar</code>, cannot be <code>null</code>
