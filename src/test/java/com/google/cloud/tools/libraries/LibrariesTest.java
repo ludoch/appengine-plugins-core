@@ -75,7 +75,6 @@ public class LibrariesTest {
     String transport = api.getString("transport");
     Assert.assertTrue("http".equals(transport) || "grpc".equals(transport));
     new URI(api.getString("documentation"));
-    new URI(api.getString("site"));
     if (api.getString("icon") != null) {
       new URI(api.getString("icon"));
     }
@@ -87,6 +86,7 @@ public class LibrariesTest {
       
       Assert.assertThat(statuses, hasItemInArray(status));
       new URI(client.getString("apireference"));
+      new URI(client.getString("site"));
       Assert.assertTrue("1.7.0".equals(client.getString("languageLevel")));
       Assert.assertFalse(client.getString("version").isEmpty());  // todo regex
       Assert.assertNotNull(client.getJsonObject("mavenCoordinates"));
@@ -106,7 +106,8 @@ public class LibrariesTest {
     Assert.assertTrue(apis.hasNext());
     
     Map<String, MavenCoordinates> map = new HashMap<>();
-    for (JsonObject api = (JsonObject) apis.next(); apis.hasNext(); api = (JsonObject) apis.next()) {
+    while (apis.hasNext()) { 
+      JsonObject api = (JsonObject) apis.next();
       String name = api.getString("name");
       if (map.containsKey(name)) {
         Assert.fail(name + " is defined twice");
