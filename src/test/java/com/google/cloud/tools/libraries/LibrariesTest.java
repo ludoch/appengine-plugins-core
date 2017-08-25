@@ -86,8 +86,6 @@ public class LibrariesTest {
       String status = client.getString("status");
       
       Assert.assertThat(statuses, hasItemInArray(status));
-      Assert.assertTrue(status, 
-          "beta".equals(status) || "alpha".equals(status) || "GA".equals(status));
       new URI(client.getString("apireference"));
       Assert.assertTrue("1.7.0".equals(client.getString("languageLevel")));
       Assert.assertFalse(client.getString("version").isEmpty());  // todo regex
