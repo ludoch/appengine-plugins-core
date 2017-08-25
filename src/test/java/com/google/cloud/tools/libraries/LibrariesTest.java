@@ -16,6 +16,8 @@
  
  package com.google.cloud.tools.libraries;
 
+import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -27,6 +29,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonReaderFactory;
+import javax.json.JsonValue;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -34,13 +42,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.xml.sax.SAXException;
-
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.JsonReaderFactory;
-import javax.json.JsonValue;
 
 public class LibrariesTest {
 
@@ -66,6 +67,8 @@ public class LibrariesTest {
     }
   }
 
+  private static final String[] statuses = {"alpha", "beta", "GA"};
+
   private static void verifyApi(JsonObject api) throws URISyntaxException {
     Assert.assertFalse(api.getString("name").isEmpty());
     Assert.assertFalse(api.getString("description").isEmpty());
@@ -81,6 +84,8 @@ public class LibrariesTest {
     for (int i = 0; i < clients.size(); i++) {
       JsonObject client = (JsonObject) clients.get(i);
       String status = client.getString("status");
+      
+      Assert.assertThat(statuses, hasItemInArray(status));
       Assert.assertTrue(status, 
           "beta".equals(status) || "alpha".equals(status) || "GA".equals(status));
       new URI(client.getString("apireference"));
