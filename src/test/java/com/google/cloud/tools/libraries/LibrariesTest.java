@@ -88,8 +88,9 @@ public class LibrariesTest {
       Assert.assertThat(statuses, hasItemInArray(status));
       new URI(client.getString("apireference"));
       new URI(client.getString("site"));
-      Assert.assertTrue("1.7.0".equals(client.getString("languageLevel")));
-      Assert.assertFalse(client.getString("version").isEmpty());  // todo regex
+      Assert.assertTrue(client.getString("languageLevel").matches("1\\.\\d+\\.\\d+"));
+      String versionString = client.getString("version");
+      Assert.assertTrue(versionString.matches("\\d+\\.\\d+\\.\\d+"));
       Assert.assertNotNull(client.getJsonObject("mavenCoordinates"));
       if (client.getString("source") != null) {
         new URI(client.getString("source"));
