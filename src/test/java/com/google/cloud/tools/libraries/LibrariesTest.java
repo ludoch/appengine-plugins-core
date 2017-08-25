@@ -62,7 +62,8 @@ public class LibrariesTest {
     JsonReader reader = factory.createReader(in); 
     Iterator<JsonValue> apis = reader.readArray().iterator();
     Assert.assertTrue(apis.hasNext());
-    for (JsonObject api = (JsonObject) apis.next(); apis.hasNext(); api = (JsonObject) apis.next()) {
+    while (apis.hasNext()) { 
+      JsonObject api = (JsonObject) apis.next();
       verifyApi(api);
     }
   }
