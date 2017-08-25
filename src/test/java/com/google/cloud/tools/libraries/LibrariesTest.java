@@ -107,7 +107,7 @@ public class LibrariesTest {
     Iterator<JsonValue> apis = reader.readArray().iterator();
     Assert.assertTrue(apis.hasNext());
     
-    Map<String, MavenCoordinates> map = new HashMap<>();
+    Map<String, String> map = new HashMap<>();
     while (apis.hasNext()) { 
       JsonObject api = (JsonObject) apis.next();
       String name = api.getString("name");
@@ -116,11 +116,8 @@ public class LibrariesTest {
       }
       JsonObject coordinates =
           ((JsonObject) api.getJsonArray("clients").get(0)).getJsonObject("mavenCoordinates");
-      MavenCoordinates mavenCoordinates = new MavenCoordinates.Builder()
-          .setGroupId(coordinates.getString("groupId"))
-          .setArtifactId(coordinates.getString("artifactId"))
-          .setVersion(coordinates.getString("version"))
-          .build();
+      String mavenCoordinates = 
+          coordinates.getString("groupId") + ":" + coordinates.getString("artifactId");
       if (map.containsValue(mavenCoordinates)) {
         Assert.fail(mavenCoordinates + " is defined twice");
       }
