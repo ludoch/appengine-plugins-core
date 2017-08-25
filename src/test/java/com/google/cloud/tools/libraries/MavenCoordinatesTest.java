@@ -85,7 +85,7 @@ public class MavenCoordinatesTest {
         .setGroupId("g")
         .setArtifactId("a")
         .build();
-    assertThat(mavenCoordinates.getType(), is(MavenCoordinates.JAR_TYPE));
+    assertThat(mavenCoordinates.getPackaging(), is(MavenCoordinates.JAR_TYPE));
   }
 
   @Test(expected = NullPointerException.class)
@@ -93,13 +93,13 @@ public class MavenCoordinatesTest {
     new MavenCoordinates.Builder()
         .setGroupId("g")
         .setArtifactId("a")
-        .setType(null)
+        .setPackaging(null)
         .build();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testSetEmptyType() {
-    new MavenCoordinates.Builder().setGroupId("g").setArtifactId("a").setType("").build();
+    new MavenCoordinates.Builder().setGroupId("g").setArtifactId("a").setPackaging("").build();
   }
 
   @Test
@@ -107,9 +107,9 @@ public class MavenCoordinatesTest {
     MavenCoordinates mavenCoordinates = new MavenCoordinates.Builder()
         .setGroupId("g")
         .setArtifactId("a")
-        .setType("war")
+        .setPackaging("war")
         .build();
-    assertThat(mavenCoordinates.getType(), is("war"));
+    assertThat(mavenCoordinates.getPackaging(), is("war"));
   }
 
   @Test

@@ -27,10 +27,10 @@ public class MavenCoordinates {
   public static final String LATEST_VERSION = "LATEST";
   public static final String JAR_TYPE = "jar";
 
-  private String groupId;
-  private String artifactId;
+  private final String groupId;
+  private final String artifactId;
   private String version = LATEST_VERSION;
-  private String type = JAR_TYPE;
+  private String packaging = JAR_TYPE;
   private String classifier;
 
   /**
@@ -58,8 +58,8 @@ public class MavenCoordinates {
   /**
    * @return the Maven packaging type, defaults to <code>jar</code>, never <code>null</code>
    */
-  public String getType() {
-    return type;
+  public String getPackaging() {
+    return packaging;
   }
 
   /**
@@ -86,7 +86,7 @@ public class MavenCoordinates {
   @Override
   public String toString() {
     return MessageFormat.format("MavenCoordinates [repository={0}, {1}:{2}:{3}:{4}]",
-                                groupId, artifactId, type, classifier, version);
+                                groupId, artifactId, packaging, classifier, version);
   }
   
   @Override 
@@ -110,7 +110,7 @@ public class MavenCoordinates {
     builder.groupId = groupId;
     builder.artifactId = artifactId;
     builder.version = version;
-    builder.type = type;
+    builder.packaging = packaging;
     builder.classifier = classifier;
     return builder;
   }
@@ -119,13 +119,13 @@ public class MavenCoordinates {
     private String groupId;
     private String artifactId;
     private String version = LATEST_VERSION;
-    private String type = JAR_TYPE;
+    private String packaging = JAR_TYPE;
     private String classifier;
 
     public MavenCoordinates build() {
       MavenCoordinates coordinates = new MavenCoordinates(groupId, artifactId); 
       coordinates.version = version;
-      coordinates.type = type;
+      coordinates.packaging = packaging;
       coordinates.classifier = classifier;
       return coordinates;
     }
@@ -151,13 +151,13 @@ public class MavenCoordinates {
     }    
     
     /**
-     * @param type the Maven packaging type, defaults to <code>jar</code>, cannot be <code>null</code>
+     * @param type the Maven packaging type, defaults to <code>jar</code>. Cannot be <code>null</code>
      *     or empty string.
      */
-    public Builder setType(String type) {
+    public Builder setPackaging(String type) {
       Preconditions.checkNotNull(type, "type is null");
       Preconditions.checkArgument(!type.isEmpty(), "type is empty");
-      this.type = type;
+      this.packaging = type;
       return this;
     }
 
