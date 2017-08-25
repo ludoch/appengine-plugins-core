@@ -25,7 +25,7 @@ import java.text.MessageFormat;
 public class MavenCoordinates {
 
   public static final String LATEST_VERSION = "LATEST";
-  public static final String JAR_TYPE = "jar";
+  private static final String JAR_TYPE = "jar";
 
   private final String groupId;
   private final String artifactId;
@@ -34,6 +34,8 @@ public class MavenCoordinates {
   private String classifier;
 
   /**
+   * Create a new MavenCoordinates object.
+   * 
    * @param groupId the Maven group ID, cannot be <code>null</code>
    * @param artifactId the Maven artifact ID, cannot be <code>null</code>
    */
@@ -48,14 +50,18 @@ public class MavenCoordinates {
   }
 
   /**
-   * @return the Maven version of the artifact, defaults to special value
-   *         {@link MavenCoordinates#LATEST_VERSION}, never <code>null</code>
+   * Returns the Maven version of the artifact. Defaults to the special value
+   *     {@link MavenCoordinates#LATEST_VERSION}, 
+   * 
+   * @return the Maven version of the artifact, never <code>null</code>
    */
   public String getVersion() {
     return version;
   }
 
   /**
+   * Returns the Maven packaging type, defaults to <code>jar</code>, never <code>null</code>.
+   * 
    * @return the Maven packaging type, defaults to <code>jar</code>, never <code>null</code>
    */
   public String getPackaging() {
@@ -63,6 +69,8 @@ public class MavenCoordinates {
   }
 
   /**
+   * Returns the Maven classifier.
+   * 
    * @return the Maven classifier or <code>null</code> if it was not set
    */
   public String getClassifier() {
@@ -70,6 +78,8 @@ public class MavenCoordinates {
   }
 
   /**
+   * Returns the Maven group ID.
+   * 
    * @return the Maven group ID, never <code>null</code>
    */
   public String getGroupId() {
@@ -77,6 +87,8 @@ public class MavenCoordinates {
   }
 
   /**
+   * Returns the Maven artifact ID.
+   * 
    * @return the Maven artifact ID, never <code>null</code>
    */
   public String getArtifactId() {
@@ -86,25 +98,41 @@ public class MavenCoordinates {
   @Override
   public String toString() {
     return MessageFormat.format("MavenCoordinates [repository={0}, {1}:{2}:{3}:{4}]",
-                                groupId, artifactId, packaging, classifier, version);
+        groupId, artifactId, packaging, classifier, version);
   }
   
   @Override 
   public int hashCode() {
-    return (groupId + ":" + artifactId + ":" + version).hashCode();
+    return getCoordinates().hashCode();
+  }
+
+  private String getCoordinates() {
+    String coordinates = groupId + ":" + artifactId + ":" + version;
+    if (classifier != null) {
+      coordinates += ":" + classifier;
+    }
+    if (!packaging.equals(JAR_TYPE)) {
+      coordinates += ":" + packaging;
+    }
+    return coordinates;
   }
   
   @Override 
-  public boolean equals(Object o) {
-    if (o == null || !(o instanceof MavenCoordinates)) {
+  public boolean equals(Object other) {
+    if (other == null || !(other instanceof MavenCoordinates)) {
       return false;
     }
-    MavenCoordinates other = (MavenCoordinates) o;
-    return other.artifactId.equals(artifactId) 
-        && other.groupId.equals(groupId) 
-        && other.version.equals(version);
+    MavenCoordinates coordinates = (MavenCoordinates) other;
+    return coordinates.artifactId.equals(artifactId) 
+        && coordinates.groupId.equals(groupId) 
+        && coordinates.version.equals(version)
+        && coordinates.classifier.equals(classifier)
+        && coordinates.packaging.equals(packaging);
   }
   
+  /**
+   * A builder initially configured to create a copy of this object.
+   */
   public Builder toBuilder() {
     Builder builder = new Builder();
     builder.groupId = groupId;
@@ -115,6 +143,9 @@ public class MavenCoordinates {
     return builder;
   }
   
+  /**
+   * A builder for immutable MavenCoordinates objects.
+   */
   public static class Builder {
     private String groupId;
     private String artifactId;
@@ -122,6 +153,9 @@ public class MavenCoordinates {
     private String packaging = JAR_TYPE;
     private String classifier;
 
+    /**
+     * Create a new MavenCoordinates object.
+     */
     public MavenCoordinates build() {
       MavenCoordinates coordinates = new MavenCoordinates(groupId, artifactId); 
       coordinates.version = version;
@@ -131,6 +165,8 @@ public class MavenCoordinates {
     }
     
     /**
+     * Specify the Maven group ID.
+     * 
      * @param groupId the Maven group ID
      */
     public Builder setGroupId(String groupId) {
@@ -141,6 +177,8 @@ public class MavenCoordinates {
     }
 
     /**
+     * Specify the Maven artifact ID.
+     *
      * @param artifactId the Maven artifact ID
      */
     public Builder setArtifactId(String artifactId) {
@@ -151,8 +189,8 @@ public class MavenCoordinates {
     }    
     
     /**
-     * @param type the Maven packaging type, defaults to <code>jar</code>. Cannot be <code>null</code>
-     *     or empty string.
+     * @param type the Maven packaging type, defaults to <code>jar</code>.
+     *     Cannot be <code>null</code> or empty string.
      */
     public Builder setPackaging(String type) {
       Preconditions.checkNotNull(type, "type is null");

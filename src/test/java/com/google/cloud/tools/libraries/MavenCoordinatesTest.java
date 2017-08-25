@@ -85,7 +85,7 @@ public class MavenCoordinatesTest {
         .setGroupId("g")
         .setArtifactId("a")
         .build();
-    assertThat(mavenCoordinates.getPackaging(), is(MavenCoordinates.JAR_TYPE));
+    assertEquals("jar", mavenCoordinates.getPackaging());
   }
 
   @Test(expected = NullPointerException.class)
