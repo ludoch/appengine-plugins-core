@@ -7,7 +7,7 @@
 
   <groupId>com.google.cloud.tools</groupId>
   <artifactId>appengine-plugins-core</artifactId>
-  <version>0.3.7-SNAPSHOT</version>
+  <version>99.99.99</version>
 
   <name>App Engine Plugins Core Library</name>
   <description>
