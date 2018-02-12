@@ -139,7 +139,13 @@ public class CloudSdkAppEngineStandardStagingTest {
     configuration.setStagingDirectory(destination);
 
     List<String> expected =
-        ImmutableList.of("stage", source.toPath().toString(), destination.toPath().toString());
+        ImmutableList.of(
+            "--enable_jar_splitting",
+            "--delete_jsps",
+            "--enable_jar_classes",
+            "stage",
+            source.toPath().toString(),
+            destination.toPath().toString());
 
     staging.stageStandard(configuration);
 

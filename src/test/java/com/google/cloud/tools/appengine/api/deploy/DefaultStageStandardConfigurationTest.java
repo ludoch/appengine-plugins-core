@@ -1,6 +1,5 @@
 package com.google.cloud.tools.appengine.api.deploy;
 
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -16,7 +15,7 @@ public class DefaultStageStandardConfigurationTest {
     config.setEnableJarSplitting(true);
     Assert.assertTrue(config.getEnableJarSplitting());
   }
-  
+
   @Test
   public void testDeleteJsps() {
     Assert.assertTrue(config.getDeleteJsps());
@@ -43,6 +42,4 @@ public class DefaultStageStandardConfigurationTest {
     config.setDisableJarJsps(false);
     Assert.assertFalse(config.getDisableJarJsps());
   }
-
-
 }
