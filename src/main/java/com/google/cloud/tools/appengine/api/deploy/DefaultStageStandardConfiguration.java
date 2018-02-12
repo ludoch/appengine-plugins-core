@@ -24,14 +24,15 @@ public class DefaultStageStandardConfiguration implements StageStandardConfigura
   private File sourceDirectory;
   private File stagingDirectory;
   private File dockerfile;
+  // todo(elharo): the Boolean fields should be non-nullable primitives
   private Boolean enableQuickstart;
   private Boolean disableUpdateCheck;
-  private Boolean enableJarSplitting;
+  private Boolean enableJarSplitting = true;
   private String jarSplittingExcludes;
   private String compileEncoding;
-  private Boolean deleteJsps;
-  private Boolean enableJarClasses;
-  private Boolean disableJarJsps;
+  private Boolean deleteJsps = true;
+  private Boolean enableJarClasses = true;
+  private Boolean disableJarJsps = false;
   private String runtime;
 
   @Override
