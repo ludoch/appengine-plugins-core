@@ -31,7 +31,7 @@ public class DefaultStageStandardConfiguration implements StageStandardConfigura
   private String jarSplittingExcludes;
   private String compileEncoding;
   private Boolean deleteJsps = true;
-  private Boolean enableJarClasses = true;
+  private Boolean enableJarClasses = false;
   private Boolean disableJarJsps = false;
   private String runtime;
 

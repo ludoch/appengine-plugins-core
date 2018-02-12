@@ -27,11 +27,11 @@ public class DefaultStageStandardConfigurationTest {
 
   @Test
   public void testJarClasses() {
-    Assert.assertTrue(config.getEnableJarClasses());
-    config.setEnableJarClasses(false);
     Assert.assertFalse(config.getEnableJarClasses());
     config.setEnableJarClasses(true);
     Assert.assertTrue(config.getEnableJarClasses());
+    config.setEnableJarClasses(false);
+    Assert.assertFalse(config.getEnableJarClasses());
   }
 
   @Test
