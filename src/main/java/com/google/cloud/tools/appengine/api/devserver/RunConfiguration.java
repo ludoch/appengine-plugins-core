@@ -16,12 +16,13 @@
 
 package com.google.cloud.tools.appengine.api.devserver;
 
+import com.google.cloud.tools.appengine.api.Configuration;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 
 /** Configuration for {@link AppEngineDevServer#run(RunConfiguration)}. */
-public interface RunConfiguration {
+public interface RunConfiguration extends Configuration {
 
   // TODO(joaomartins): Only contains common, jvm, Python, VM and misc flags for now. Need to add
   // PHP, AppIdentity, Blobstore, etc.

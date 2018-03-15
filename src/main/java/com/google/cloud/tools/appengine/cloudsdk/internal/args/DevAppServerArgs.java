@@ -16,8 +16,11 @@
 
 package com.google.cloud.tools.appengine.cloudsdk.internal.args;
 
+import com.google.cloud.tools.appengine.api.Configuration;
+import com.google.common.collect.Lists;
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -69,5 +72,16 @@ public class DevAppServerArgs {
    */
   public static List<String> get(String name, Map<String, String> keyValues) {
     return Args.flaggedKeyValues(name, keyValues);
+  }
+
+
+  /** Returns a list of args for the common arguments in {@link Configuration}. */
+  public static List<String> get(Configuration configuration) {
+    List<String> result = new ArrayList<>();
+
+    // Set the application, overriding "application" in appengine-web.xml.
+    result.addAll(get("application", configuration.getProject()));
+
+    return result;
   }
 }
