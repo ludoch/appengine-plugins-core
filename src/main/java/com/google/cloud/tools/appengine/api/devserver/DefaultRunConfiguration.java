@@ -51,6 +51,7 @@ public class DefaultRunConfiguration implements RunConfiguration {
   private File datastorePath;
   private Map<String, String> environment;
   private List<String> additionalArguments;
+  private String project;
 
   @Override
   public List<File> getServices() {
@@ -285,5 +286,14 @@ public class DefaultRunConfiguration implements RunConfiguration {
   public void setAdditionalArguments(List<String> additionalArguments) {
     this.additionalArguments =
         additionalArguments != null ? ImmutableList.copyOf(additionalArguments) : null;
+  }
+
+  @Override
+  public String getProject() {
+    return project;
+  }
+
+  public void setProject(String project) {
+    this.project = project;
   }
 }

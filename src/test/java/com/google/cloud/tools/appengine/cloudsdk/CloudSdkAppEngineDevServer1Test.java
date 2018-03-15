@@ -128,6 +128,7 @@ public class CloudSdkAppEngineDevServer1Test {
     configuration.setDefaultGcsBucketName("buckets");
     configuration.setEnvironment(null);
     configuration.setAutomaticRestart(true);
+    configuration.setProject("myapp");
 
     // these params are not used by devappserver1 and will log warnings
     configuration.setAdminHost("adminHost");
@@ -157,6 +158,7 @@ public class CloudSdkAppEngineDevServer1Test {
             "--address=host",
             "--port=8090",
             "--default_gcs_bucket=buckets",
+            "--application=myapp",
             "--allow_remote_shutdown",
             "--disable_update_check",
             "--ARG1",

@@ -94,6 +94,7 @@ public class CloudSdkAppEngineDevServer2Test {
     configuration.setDatastorePath(fakeDatastorePath.toFile());
     configuration.setEnvironment(null);
     configuration.setAdditionalArguments(Arrays.asList("--ARG1", "--ARG2"));
+    configuration.setProject("myapp");
 
     SpyVerifier.newVerifier(configuration).verifyDeclaredSetters();
 
@@ -124,6 +125,7 @@ public class CloudSdkAppEngineDevServer2Test {
             "--default_gcs_bucket_name=buckets",
             "--clear_datastore=true",
             "--datastore_path=" + fakeDatastorePath,
+            "--application=myapp",
             "--ARG1",
             "--ARG2");
 
