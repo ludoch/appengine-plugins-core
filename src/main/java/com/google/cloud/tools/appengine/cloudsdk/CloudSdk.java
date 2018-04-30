@@ -506,7 +506,6 @@ public class CloudSdk {
           InvalidJavaSdkException {
     validateCloudSdkLocation();
     validateCloudSdkVersion();
-    validateJdk();
   }
 
   private void validateCloudSdkVersion()
