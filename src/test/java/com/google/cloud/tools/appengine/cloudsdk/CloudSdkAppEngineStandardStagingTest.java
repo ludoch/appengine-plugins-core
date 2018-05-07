@@ -144,7 +144,6 @@ public class CloudSdkAppEngineStandardStagingTest {
         ImmutableList.of(
             "--enable_jar_splitting",
             "--delete_jsps",
-            "--enable_jar_classes",
             "stage",
             source.toPath().toString(),
             destination.toPath().toString());
