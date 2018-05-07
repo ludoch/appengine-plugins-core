@@ -20,18 +20,19 @@ import com.google.cloud.tools.appengine.api.AppEngineException;
 import com.google.cloud.tools.appengine.api.debug.GenRepoInfoFile;
 import com.google.cloud.tools.appengine.api.debug.GenRepoInfoFileConfiguration;
 import com.google.cloud.tools.appengine.cloudsdk.internal.args.GcloudArgs;
-import com.google.cloud.tools.appengine.cloudsdk.internal.process.ProcessRunnerException;
+import com.google.cloud.tools.appengine.cloudsdk.process.ProcessHandlerException;
 import com.google.common.base.Preconditions;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /** Cloud SDK based implementation of {@link GenRepoInfoFile}. */
 public class CloudSdkGenRepoInfoFile implements GenRepoInfoFile {
 
-  private final CloudSdk sdk;
+  private final GcloudRunner runner;
 
-  public CloudSdkGenRepoInfoFile(CloudSdk sdk) {
-    this.sdk = Preconditions.checkNotNull(sdk);
+  public CloudSdkGenRepoInfoFile(GcloudRunner runner) {
+    this.runner = Preconditions.checkNotNull(runner);
   }
 
   /**
@@ -43,22 +44,24 @@ public class CloudSdkGenRepoInfoFile implements GenRepoInfoFile {
    * CloudSdk} object used to run the command.
    *
    * @param configuration contains the source and output directories
-   * @throws CloudSdkNotFoundException when the Cloud SDK is not installed where expected
-   * @throws CloudSdkOutOfDateException when the installed Cloud SDK is too old
    * @throws AppEngineException when there is an issue running the gcloud process
    */
   @Override
-  public void generate(GenRepoInfoFileConfiguration configuration) {
+  public void generate(GenRepoInfoFileConfiguration configuration) throws AppEngineException {
     List<String> arguments = new ArrayList<>();
 
+    arguments.add("gcloud");
+    arguments.add("beta");
+    arguments.add("debug");
+    arguments.add("source");
     arguments.add("gen-repo-info-file");
     arguments.addAll(GcloudArgs.get("output-directory", configuration.getOutputDirectory()));
     arguments.addAll(GcloudArgs.get("source-directory", configuration.getSourceDirectory()));
 
     try {
-      sdk.runSourceCommand(arguments);
-    } catch (ProcessRunnerException pre) {
-      throw new AppEngineException(pre);
+      runner.run(arguments, null);
+    } catch (ProcessHandlerException | IOException ex) {
+      throw new AppEngineException(ex);
     }
   }
 }

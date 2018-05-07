@@ -7,7 +7,7 @@
 
   <groupId>com.google.cloud.tools</groupId>
   <artifactId>appengine-plugins-core</artifactId>
-  <version>0.4.3-SNAPSHOT</version>
+  <version>0.5.3-SNAPSHOT</version>
 
   <name>App Engine Plugins Core Library</name>
   <description>
@@ -80,7 +80,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>20.0</version>
+      <version>21.0</version>
     </dependency>
     <dependency>
       <groupId>org.yaml</groupId>
@@ -90,7 +90,7 @@
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
-      <version>3.0.1</version>
+      <version>3.0.2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -119,7 +119,7 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>2.7.17</version>
+      <version>2.18.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -147,8 +147,8 @@
           <forceJavacCompilerUse>true</forceJavacCompilerUse>
           <!-- maven-compiler-plugin defaults to targeting Java 5, but our javac
           only supports >=6 -->
-          <source>1.7</source>
-          <target>1.7</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
         <dependencies>
           <dependency>
@@ -209,7 +209,6 @@
         </configuration>
         <executions>
           <execution>
-            <id>default-cli</id>
             <phase>validate</phase>
             <goals>
               <goal>check</goal>
@@ -225,24 +224,22 @@
           <dependency>
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
-            <version>8.2</version>
+            <version>8.8</version>
           </dependency>
         </dependencies>
         <configuration>
           <consoleOutput>false</consoleOutput>
           <failOnViolation>true</failOnViolation>
           <violationSeverity>warning</violationSeverity>
+          <configLocation>google_checks.xml</configLocation>
+          <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
         </configuration>
         <executions>
           <execution>
-            <id>google-checks</id>
+            <phase>verify</phase>
             <goals>
               <goal>check</goal>
             </goals>
-            <configuration>
-              <configLocation>google_checks.xml</configLocation>
-              <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
-            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -258,9 +255,13 @@
           -->
           <instructions>
             <Bundle-SymbolicName>com.google.cloud.tools.appengine</Bundle-SymbolicName>
-            <Bundle-RequiredExecutionEnvironment>JavaSE-1.7</Bundle-RequiredExecutionEnvironment>
+            <Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
             <Import-Package>!javax.annotation,*</Import-Package>
             <Eclipse-BuddyPolicy>registered</Eclipse-BuddyPolicy>
+            <!--  best URL we have until 
+                  https://github.com/GoogleCloudPlatform/appengine-plugins-core/issues/338
+                  is fixed -->
+            <Bundle-DocURL>https://github.com/GoogleCloudPlatform/appengine-plugins-core</Bundle-DocURL>
           </instructions>
         </configuration>
         <executions>
@@ -289,18 +290,19 @@
        <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.4.1</version>
+        <version>3.0.0-M1</version>
         <executions>
           <execution>
             <id>enforce</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
             <configuration>
               <rules>
                 <dependencyConvergence/>
               </rules>
             </configuration>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
           </execution>
         </executions>
       </plugin>
@@ -308,7 +310,7 @@
 
     <pluginManagement>
       <plugins>
-        <!-- for development support in Eclispe IDE -->
+        <!-- for development support in Eclipse IDE -->
         <plugin>
           <groupId>org.eclipse.m2e</groupId>
           <artifactId>lifecycle-mapping</artifactId>
@@ -316,7 +318,7 @@
           <configuration>
             <lifecycleMappingMetadata>
               <pluginExecutions>
-                <!-- m2eclipe does not support errorprone -->
+                <!-- m2eclipse does not support errorprone -->
                 <pluginExecution>
                   <pluginExecutionFilter>
                     <groupId>org.apache.maven.plugins</groupId>

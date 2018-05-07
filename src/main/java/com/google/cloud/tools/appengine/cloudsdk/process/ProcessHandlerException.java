@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google Inc.
+ * Copyright 2018 Google LLC. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.cloud.tools.managedcloudsdk.install;
+package com.google.cloud.tools.appengine.cloudsdk.process;
 
-import java.util.Arrays;
-import org.junit.Assert;
-import org.junit.Test;
+/** Exception during execution of a {@link ProcessHandler}. */
+public class ProcessHandlerException extends Exception {
 
-/** Tests for {@link WindowsInstallScriptProvider} */
-public class WindowsInstallScriptProviderTest {
+  public ProcessHandlerException(Exception cause) {
+    super(cause);
+  }
 
-  @Test
-  public void testGetScriptCommandLine() {
-    Assert.assertEquals(
-        Arrays.asList("cmd.exe", "/c", "install.bat"),
-        new WindowsInstallScriptProvider().getScriptCommandLine());
+  public ProcessHandlerException(String message) {
+    super(message);
   }
 }

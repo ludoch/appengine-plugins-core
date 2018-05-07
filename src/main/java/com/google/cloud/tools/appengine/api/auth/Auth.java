@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Google Inc.
+ * Copyright 2018 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package com.google.cloud.tools.appengine.api.genconfig;
+package com.google.cloud.tools.appengine.api.auth;
 
-import java.io.File;
+import com.google.cloud.tools.appengine.api.AppEngineException;
+import java.nio.file.Path;
 
-/**
- * Parameters for generating configuration files using {@link
- * GenConfigUtility#genConfig(GenConfigParams)}.
- */
-public interface GenConfigParams {
+public interface Auth {
+  void login(String user) throws AppEngineException;
 
-  File getSourceDirectory();
+  void login() throws AppEngineException;
 
-  String getConfig();
-
-  Boolean getCustom();
-
-  String getRuntime();
+  void activateServiceAccount(Path jsonFile) throws AppEngineException;
 }

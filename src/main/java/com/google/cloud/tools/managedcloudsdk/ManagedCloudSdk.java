@@ -24,17 +24,23 @@ import com.google.cloud.tools.managedcloudsdk.command.CommandExecutionException;
 import com.google.cloud.tools.managedcloudsdk.command.CommandExitException;
 import com.google.cloud.tools.managedcloudsdk.components.SdkComponent;
 import com.google.cloud.tools.managedcloudsdk.components.SdkComponentInstaller;
+import com.google.cloud.tools.managedcloudsdk.components.SdkUpdater;
 import com.google.cloud.tools.managedcloudsdk.install.SdkInstaller;
-import com.google.cloud.tools.managedcloudsdk.update.SdkUpdater;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Logger;
 
 /** A manager for installing, configuring and updating the Cloud SDK. */
 public class ManagedCloudSdk {
+
+  private static final Logger logger = Logger.getLogger(ManagedCloudSdk.class.getName());
 
   private final Version version;
   private final Path managedSdkDirectory;
@@ -159,7 +165,7 @@ public class ManagedCloudSdk {
   }
 
   public SdkComponentInstaller newComponentInstaller() {
-    return SdkComponentInstaller.newComponentInstaller(getGcloud());
+    return SdkComponentInstaller.newComponentInstaller(osInfo.name(), getGcloud());
   }
 
   /**
@@ -172,19 +178,58 @@ public class ManagedCloudSdk {
     if (version != Version.LATEST) {
       throw new UnsupportedOperationException("Cannot update a fixed version SDK.");
     }
-    return SdkUpdater.newUpdater(getGcloud());
+    return SdkUpdater.newUpdater(osInfo.name(), getGcloud());
   }
 
   /** Get a new {@link ManagedCloudSdk} instance for @{link Version} specified. */
   public static ManagedCloudSdk newManagedSdk(Version version) throws UnsupportedOsException {
+    OsInfo osInfo = OsInfo.getSystemOsInfo();
     return new ManagedCloudSdk(
         version,
-        Paths.get(System.getProperty("user.home"), ".google-cloud-tools-java", "managed-cloud-sdk"),
-        OsInfo.getSystemOsInfo());
+        getOsSpecificManagedSdkHome(osInfo.name(), System.getProperties(), System.getenv()),
+        osInfo);
   }
 
   /** Convenience method to obtain a new LATEST {@link ManagedCloudSdk} instance. */
   public static ManagedCloudSdk newManagedSdk() throws UnsupportedOsException {
     return newManagedSdk(Version.LATEST);
+  }
+
+  @VisibleForTesting
+  static Path getOsSpecificManagedSdkHome(
+      OsInfo.Name osName, Properties systemProperties, Map<String, String> environment) {
+    Path userHome = Paths.get(systemProperties.getProperty("user.home"));
+    Path cloudSdkPartialPath = Paths.get("google-cloud-tools-java", "managed-cloud-sdk");
+    Path xdgPath = userHome.resolve(".cache").resolve(cloudSdkPartialPath);
+
+    switch (osName) {
+      case WINDOWS:
+        String localAppDataEnv = environment.get("LOCALAPPDATA");
+        if (localAppDataEnv == null || localAppDataEnv.trim().isEmpty()) {
+          logger.warning("LOCALAPPDATA environment is invalid or missing");
+          return xdgPath;
+        }
+        Path localAppData = Paths.get(localAppDataEnv);
+        if (!Files.exists(localAppData)) {
+          logger.warning(localAppData.toString() + " does not exist");
+          return xdgPath;
+        }
+        return localAppData.resolve(cloudSdkPartialPath);
+
+      case MAC:
+        Path applicationSupport = userHome.resolve("Library").resolve("Application Support");
+        if (!Files.exists(applicationSupport)) {
+          logger.warning(applicationSupport.toString() + " does not exist");
+          return xdgPath;
+        }
+        return applicationSupport.resolve(cloudSdkPartialPath);
+
+      case LINUX:
+        return xdgPath;
+
+      default:
+        // we can't actually get here unless we modify the enum OsInfo.Name
+        throw new RuntimeException("OsName is not valid : " + osName);
+    }
   }
 }
