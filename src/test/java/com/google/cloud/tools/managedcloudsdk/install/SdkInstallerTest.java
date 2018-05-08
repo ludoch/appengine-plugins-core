@@ -54,11 +54,8 @@ public class SdkInstallerTest {
   @Mock private Installer successfulInstaller;
 
   @Mock private DownloaderFactory failureDownloaderFactory;
-  @Mock private Downloader failureDownloader;
   @Mock private ExtractorFactory failureExtractorFactory;
-  @Mock private Extractor failureExtractor;
   @Mock private InstallerFactory failureInstallerFactory;
-  @Mock private Installer failureInstaller;
 
   private FileResourceProvider fakeFileResourceProvider;
   private URL fakeArchiveSource;
@@ -124,16 +121,16 @@ public class SdkInstallerTest {
         .newInstaller(fakeSdkHome, progressListener, consoleListener);
     Mockito.doAnswer(unused -> createPath(fakeGcloud, false)).when(successfulInstaller).install();
 
-    // FAIL MOCKS
-    Mockito.doReturn(failureDownloader)
+    // FAIL (NO-OP) MOCKS
+    Mockito.doReturn(Mockito.mock(Downloader.class))
         .when(failureDownloaderFactory)
         .newDownloader(fakeArchiveSource, fakeArchiveDestination, progressListener);
 
-    Mockito.doReturn(failureExtractor)
+    Mockito.doReturn(Mockito.mock(Extractor.class))
         .when(failureExtractorFactory)
         .newExtractor(fakeArchiveDestination, fakeArchiveExtractionDestination, progressListener);
 
-    Mockito.doReturn(failureInstaller)
+    Mockito.doReturn(Mockito.mock(Installer.class))
         .when(failureInstallerFactory)
         .newInstaller(fakeSdkHome, progressListener, consoleListener);
   }
