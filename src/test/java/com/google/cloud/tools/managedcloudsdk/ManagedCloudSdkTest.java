@@ -218,7 +218,7 @@ public class ManagedCloudSdkTest {
     return properties;
   }
 
-  public void downgradeCloudSdk(ManagedCloudSdk testSdk)
+  private void downgradeCloudSdk(ManagedCloudSdk testSdk)
       throws InterruptedException, CommandExitException, CommandExecutionException,
           UnsupportedOsException {
     Map<String, String> env = null;
