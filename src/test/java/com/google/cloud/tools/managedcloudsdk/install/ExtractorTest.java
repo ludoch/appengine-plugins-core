@@ -21,24 +21,20 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ExtractorTest {
 
   @Rule public TemporaryFolder tmp = new TemporaryFolder();
   @Mock private ProgressListener mockProgressListener;
   @Mock private ExtractorProvider mockExtractorProvider;
-
-  @Before
-  public void setupMocks() {
-    MockitoAnnotations.initMocks(this);
-  }
 
   @Test
   public void testExtract_success() throws Exception {

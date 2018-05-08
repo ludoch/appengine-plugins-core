@@ -28,11 +28,13 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
 /** Tests for {@link com.google.cloud.tools.managedcloudsdk.components.SdkUpdater} */
+@RunWith(MockitoJUnitRunner.class)
 public class SdkUpdaterTest {
 
   @Mock private ConsoleListener mockConsoleListener;
@@ -46,7 +48,6 @@ public class SdkUpdaterTest {
   @Before
   public void setUpFakesAndMocks()
       throws InterruptedException, CommandExitException, CommandExecutionException {
-    MockitoAnnotations.initMocks(this);
     fakeGcloud = Paths.get("my/path/to/fake-gcloud");
     Mockito.when(mockBundledPythonCopier.copyPython()).thenReturn(mockPythonEnv);
   }
@@ -61,6 +62,7 @@ public class SdkUpdaterTest {
     Mockito.verify(mockCommandRunner).run(expectedCommand(), null, null, mockConsoleListener);
   }
 
+  @Test
   public void testUpdate_withBundledPythonCopier()
       throws InterruptedException, CommandExitException, CommandExecutionException {
     SdkUpdater testUpdater = new SdkUpdater(fakeGcloud, mockCommandRunner, mockBundledPythonCopier);

@@ -29,11 +29,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
 /** Tests for {@link SdkInstaller} */
+@RunWith(MockitoJUnitRunner.class)
 public class SdkInstallerTest {
 
   @Rule public TemporaryFolder testDir = new TemporaryFolder();
@@ -70,8 +72,6 @@ public class SdkInstallerTest {
   public void setUpMocksAndFakes()
       throws IOException, InterruptedException, UnknownArchiveTypeException, CommandExitException,
           CommandExecutionException {
-    MockitoAnnotations.initMocks(this);
-
     Path managedSdkRoot = testDir.newFolder("managed-sdk-test-home").toPath();
     fakeArchiveSource = new URL("file:///some/fake/url");
     fakeArchiveDestination = managedSdkRoot.resolve("test-downloads");
