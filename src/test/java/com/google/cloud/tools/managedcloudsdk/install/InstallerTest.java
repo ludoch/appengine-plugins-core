@@ -58,7 +58,7 @@ public class InstallerTest {
 
   @Test
   public void testCall() throws Exception {
-    new Installer<>(
+    new Installer(
             fakeWorkingDirectory,
             mockInstallScriptProvider,
             false,
@@ -76,7 +76,7 @@ public class InstallerTest {
 
   @Test
   public void testCall_withUsageReporting() throws Exception {
-    new Installer<>(
+    new Installer(
             tmp.getRoot().toPath(),
             mockInstallScriptProvider,
             true,
