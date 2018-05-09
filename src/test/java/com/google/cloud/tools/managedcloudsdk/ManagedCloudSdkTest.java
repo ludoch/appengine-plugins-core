@@ -142,8 +142,6 @@ public class ManagedCloudSdkTest {
   }
 
   private static final Path CLOUD_SDK_PARTIAL_PATH = Paths.get("google/ct4j-cloud-sdk");
-  private static final Path DEPRECATED_CLOUD_SDK_PARTIAL_PATH =
-      Paths.get("google-cloud-tools-java/managed-cloud-sdk");
 
   @Test
   public void testGetOsSpecificManagedSdk_windowsStandard() throws IOException {
@@ -284,24 +282,23 @@ public class ManagedCloudSdkTest {
   @Test
   public void testGetOsSpecificDeprecatedManagedSdkCandidates_windowsStandard() throws IOException {
     Path localAppData = Files.createDirectories(userHome.resolve("AppData").resolve("Local"));
-    Path xdgPath = userHome.resolve(".cache").resolve(DEPRECATED_CLOUD_SDK_PARTIAL_PATH);
+    Path xdgPath = userHome.resolve(".cache").resolve("google-cloud-tools-java");
 
     List<Path> candidates =
-        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkHomeCandidates(
+        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkRoots(
             OsInfo.Name.WINDOWS,
             fakeProperties,
             ImmutableMap.of("LOCALAPPDATA", localAppData.toString()));
     Assert.assertEquals(
-        Arrays.asList(localAppData.resolve(DEPRECATED_CLOUD_SDK_PARTIAL_PATH), xdgPath),
-        candidates);
+        Arrays.asList(localAppData.resolve("google-cloud-tools-java"), xdgPath), candidates);
   }
 
   @Test
   public void testGetOsSpecificDeprecatedManagedSdkCandidates_windowsLocalAppDataEnvNotSet() {
-    Path xdgPath = userHome.resolve(".cache").resolve(DEPRECATED_CLOUD_SDK_PARTIAL_PATH);
+    Path xdgPath = userHome.resolve(".cache").resolve("google-cloud-tools-java");
 
     List<Path> candidates =
-        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkHomeCandidates(
+        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkRoots(
             OsInfo.Name.WINDOWS, fakeProperties, EMPTY_MAP);
     Assert.assertEquals(Arrays.asList(xdgPath), candidates);
   }
@@ -309,10 +306,10 @@ public class ManagedCloudSdkTest {
   @Test
   public void testGetOsSpecificDeprecatedManagedSdkCandidates_windowsLocalAppDataDoesntExist() {
     Path localAppData = userHome.resolve("AppData").resolve("Local"); // not created
-    Path xdgPath = userHome.resolve(".cache").resolve(DEPRECATED_CLOUD_SDK_PARTIAL_PATH);
+    Path xdgPath = userHome.resolve(".cache").resolve("google-cloud-tools-java");
 
     List<Path> candidates =
-        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkHomeCandidates(
+        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkRoots(
             OsInfo.Name.WINDOWS,
             fakeProperties,
             ImmutableMap.of("LOCALAPPDATA", localAppData.toString()));
@@ -321,10 +318,10 @@ public class ManagedCloudSdkTest {
 
   @Test
   public void testGetOsSpecificDeprecatedManagedSdkCandidates_linux() {
-    Path xdgPath = userHome.resolve(".cache").resolve(DEPRECATED_CLOUD_SDK_PARTIAL_PATH);
+    Path xdgPath = userHome.resolve(".cache").resolve("google-cloud-tools-java");
 
     List<Path> candidates =
-        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkHomeCandidates(
+        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkRoots(
             OsInfo.Name.LINUX, fakeProperties, EMPTY_MAP);
 
     Assert.assertEquals(Arrays.asList(xdgPath), candidates);
@@ -332,25 +329,24 @@ public class ManagedCloudSdkTest {
 
   @Test
   public void testGetOsSpecificDeprecatedManagedSdkCandidates_macStandard() throws IOException {
-    Path applicationSupport =
+    Path macSpecial =
         Files.createDirectories(userHome.resolve("Library").resolve("Application Support"));
-    Path xdgPath = userHome.resolve(".cache").resolve(DEPRECATED_CLOUD_SDK_PARTIAL_PATH);
+    Path xdgPath = userHome.resolve(".cache").resolve("google-cloud-tools-java");
 
     List<Path> candidates =
-        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkHomeCandidates(
+        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkRoots(
             OsInfo.Name.MAC, fakeProperties, EMPTY_MAP);
 
     Assert.assertEquals(
-        Arrays.asList(applicationSupport.resolve(DEPRECATED_CLOUD_SDK_PARTIAL_PATH), xdgPath),
-        candidates);
+        Arrays.asList(macSpecial.resolve("google-cloud-tools-java"), xdgPath), candidates);
   }
 
   @Test
   public void testGetOsSpecificDeprecatedManagedSdkCandidates_macFallback() {
-    Path xdgPath = userHome.resolve(".cache").resolve(DEPRECATED_CLOUD_SDK_PARTIAL_PATH);
+    Path xdgPath = userHome.resolve(".cache").resolve("google-cloud-tools-java");
 
     List<Path> candidates =
-        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkHomeCandidates(
+        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkRoots(
             OsInfo.Name.MAC, fakeProperties, EMPTY_MAP);
 
     Assert.assertEquals(Arrays.asList(xdgPath), candidates);

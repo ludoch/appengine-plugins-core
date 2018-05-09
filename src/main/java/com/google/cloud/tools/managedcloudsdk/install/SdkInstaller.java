@@ -17,16 +17,22 @@
 package com.google.cloud.tools.managedcloudsdk.install;
 
 import com.google.cloud.tools.managedcloudsdk.ConsoleListener;
+import com.google.cloud.tools.managedcloudsdk.ManagedCloudSdk;
 import com.google.cloud.tools.managedcloudsdk.OsInfo;
 import com.google.cloud.tools.managedcloudsdk.ProgressListener;
+import com.google.cloud.tools.managedcloudsdk.UnsupportedOsException;
 import com.google.cloud.tools.managedcloudsdk.Version;
 import com.google.cloud.tools.managedcloudsdk.command.CommandExecutionException;
 import com.google.cloud.tools.managedcloudsdk.command.CommandExitException;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 /** Install an SDK by downloading, extracting and if necessary installing. */
@@ -127,8 +133,30 @@ public class SdkInstaller {
               + fileResourceProvider.getExtractedGcloud());
     }
 
+    // clean up SDKs in deprecated locations
+    try {
+      cleanDeprecatedSdkRoots(
+          OsInfo.getSystemOsInfo().name(), System.getProperties(), System.getenv());
+    } catch (UnsupportedOsException | IOException e) {
+      // give up
+    }
+
     progressListener.done();
     return fileResourceProvider.getExtractedSdkHome();
+  }
+
+  @VisibleForTesting
+  static void cleanDeprecatedSdkRoots(
+      OsInfo.Name osName, Properties systemProperties, Map<String, String> systemEnvironment)
+      throws IOException {
+    List<Path> deprecatedHomes =
+        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkRoots(
+            osName, systemProperties, systemEnvironment);
+    for (Path path : deprecatedHomes) {
+      if (Files.exists(path)) {
+        MoreFiles.deleteRecursively(path, RecursiveDeleteOption.ALLOW_INSECURE);
+      }
+    }
   }
 
   /**

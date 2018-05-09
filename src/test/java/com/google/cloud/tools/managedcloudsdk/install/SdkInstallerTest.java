@@ -17,13 +17,18 @@
 package com.google.cloud.tools.managedcloudsdk.install;
 
 import com.google.cloud.tools.managedcloudsdk.ConsoleListener;
+import com.google.cloud.tools.managedcloudsdk.OsInfo;
 import com.google.cloud.tools.managedcloudsdk.ProgressListener;
 import com.google.cloud.tools.managedcloudsdk.command.CommandExecutionException;
 import com.google.cloud.tools.managedcloudsdk.command.CommandExitException;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Properties;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -243,5 +248,57 @@ public class SdkInstallerTest {
           "Installation succeeded but gcloud executable not found at " + fakeGcloud.toString(),
           ex.getMessage());
     }
+  }
+
+  @Test
+  public void testCleanDeprecatedSdkHomes_windows() throws IOException {
+    testDir.newFolder(".cache", "google-cloud-tools-java", "any", "folder");
+    testDir.newFolder("LocalAppData", "google-cloud-tools-java", "any", "folder");
+
+    Path testDirRoot = testDir.getRoot().toPath();
+    Properties properties = new Properties();
+    properties.put("user.home", testDirRoot.toString());
+    Map<String, String> environment =
+        ImmutableMap.of("LOCALAPPDATA", testDirRoot.resolve("LocalAppData").toString());
+
+    SdkInstaller.cleanDeprecatedSdkRoots(OsInfo.Name.WINDOWS, properties, environment);
+
+    Assert.assertFalse(Files.exists(testDirRoot.resolve(".cache/google-cloud-tools-java")));
+    Assert.assertTrue(Files.exists(testDirRoot.resolve(".cache")));
+    Assert.assertFalse(Files.exists(testDirRoot.resolve("LocalAppData/google-cloud-tools-java")));
+    Assert.assertTrue(Files.exists(testDirRoot.resolve("LocalAppData")));
+  }
+
+  @Test
+  public void testCleanDeprecatedSdkHomes_linux() throws IOException {
+    testDir.newFolder(".cache", "google-cloud-tools-java", "any", "folder");
+
+    Path testDirRoot = testDir.getRoot().toPath();
+    Properties properties = new Properties();
+    properties.put("user.home", testDirRoot.toString());
+
+    SdkInstaller.cleanDeprecatedSdkRoots(OsInfo.Name.LINUX, properties, Collections.emptyMap());
+
+    Assert.assertFalse(Files.exists(testDirRoot.resolve(".cache/google-cloud-tools-java")));
+    Assert.assertTrue(Files.exists(testDirRoot.resolve(".cache")));
+  }
+
+  @Test
+  public void testCleanDeprecatedSdkHomes_mac() throws IOException {
+    testDir.newFolder("Library", "Application Support", "google-cloud-tools-java", "any", "folder");
+    testDir.newFolder(".cache", "google-cloud-tools-java", "any", "folder");
+
+    Path testDirRoot = testDir.getRoot().toPath();
+    Properties properties = new Properties();
+    properties.put("user.home", testDirRoot.toString());
+
+    SdkInstaller.cleanDeprecatedSdkRoots(OsInfo.Name.MAC, properties, Collections.emptyMap());
+
+    Assert.assertFalse(Files.exists(testDirRoot.resolve(".cache/google-cloud-tools-java")));
+    Assert.assertFalse(
+        Files.exists(testDirRoot.resolve("Library/Application Support/google-cloud-tools-java")));
+
+    Assert.assertTrue(Files.exists(testDirRoot.resolve(".cache")));
+    Assert.assertTrue(Files.exists(testDirRoot.resolve("Library/Application Support")));
   }
 }

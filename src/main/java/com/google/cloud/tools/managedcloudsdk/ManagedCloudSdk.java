@@ -205,13 +205,10 @@ public class ManagedCloudSdk {
     return homeCandidates.get(0);
   }
 
-  static List<Path> getOsSpecificDeprecatedManagedSdkHomeCandidates(
+  public static List<Path> getOsSpecificDeprecatedManagedSdkRoots(
       OsInfo.Name osName, Properties systemProperties, Map<String, String> environment) {
     return getOsSpecificManagedSdkHomeCandidates(
-        osName,
-        systemProperties,
-        environment,
-        Paths.get("google-cloud-tools-java", "managed-cloud-sdk"));
+        osName, systemProperties, environment, Paths.get("google-cloud-tools-java"));
   }
 
   /**
