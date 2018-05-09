@@ -32,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -198,38 +199,67 @@ public class ManagedCloudSdk {
   @VisibleForTesting
   static Path getOsSpecificManagedSdkHome(
       OsInfo.Name osName, Properties systemProperties, Map<String, String> environment) {
+    List<Path> homeCandidates =
+        getOsSpecificManagedSdkHomeCandidates(
+            osName, systemProperties, environment, Paths.get("google", "ct4j-cloud-sdk"));
+    return homeCandidates.get(0);
+  }
+
+  static List<Path> getOsSpecificDeprecatedManagedSdkHomeCandidates(
+      OsInfo.Name osName, Properties systemProperties, Map<String, String> environment) {
+    return getOsSpecificManagedSdkHomeCandidates(
+        osName,
+        systemProperties,
+        environment,
+        Paths.get("google-cloud-tools-java", "managed-cloud-sdk"));
+  }
+
+  /**
+   * Returns candidate SDK home locations for the given OS. Always returns at least one candidate.
+   *
+   * @return a list of candidate {@code Path} in reverse order of suggested preference (callers
+   *     should prefer the first path in the list)
+   */
+  @VisibleForTesting
+  static List<Path> getOsSpecificManagedSdkHomeCandidates(
+      OsInfo.Name osName,
+      Properties systemProperties,
+      Map<String, String> environment,
+      Path cloudSdkPartialPath) {
     Path userHome = Paths.get(systemProperties.getProperty("user.home"));
-    Path cloudSdkPartialPath = Paths.get("google-cloud-tools-java", "managed-cloud-sdk");
     Path xdgPath = userHome.resolve(".cache").resolve(cloudSdkPartialPath);
+    LinkedList<Path> candidates = new LinkedList<>();
+    candidates.add(xdgPath);
 
     switch (osName) {
       case WINDOWS:
         String localAppDataEnv = environment.get("LOCALAPPDATA");
         if (localAppDataEnv == null || localAppDataEnv.trim().isEmpty()) {
           logger.warning("LOCALAPPDATA environment is invalid or missing");
-          return xdgPath;
+          break;
         }
         Path localAppData = Paths.get(localAppDataEnv);
         if (!Files.exists(localAppData)) {
           logger.warning(localAppData.toString() + " does not exist");
-          return xdgPath;
+          break;
         }
-        return localAppData.resolve(cloudSdkPartialPath);
+        candidates.addFirst(localAppData.resolve(cloudSdkPartialPath));
 
       case MAC:
         Path applicationSupport = userHome.resolve("Library").resolve("Application Support");
         if (!Files.exists(applicationSupport)) {
           logger.warning(applicationSupport.toString() + " does not exist");
-          return xdgPath;
+          break;
         }
-        return applicationSupport.resolve(cloudSdkPartialPath);
+        candidates.addFirst(applicationSupport.resolve(cloudSdkPartialPath));
 
       case LINUX:
-        return xdgPath;
+        break; // no other candidate than xdgPath; do nothing
 
       default:
         // we can't actually get here unless we modify the enum OsInfo.Name
         throw new RuntimeException("OsName is not valid : " + osName);
     }
+    return candidates;
   }
 }

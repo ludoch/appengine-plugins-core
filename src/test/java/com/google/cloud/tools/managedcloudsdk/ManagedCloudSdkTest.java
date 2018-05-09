@@ -29,9 +29,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -44,6 +46,7 @@ public class ManagedCloudSdkTest {
   @Rule public TemporaryFolder tempDir = new TemporaryFolder();
 
   private static final String FIXED_VERSION = "178.0.0";
+  private static final Map<String, String> EMPTY_MAP = Collections.emptyMap();
   private final MessageCollector testListener = new MessageCollector();
   private final ProgressListener testProgressListener = new NullProgressListener();
   private final SdkComponent testComponent = SdkComponent.APP_ENGINE_JAVA;
@@ -57,14 +60,22 @@ public class ManagedCloudSdkTest {
         }
       };
 
+  private Path userHome;
+  private final Properties fakeProperties = new Properties();
+
+  @Before
+  public void setUp() {
+    userHome = tempDir.getRoot().toPath();
+    fakeProperties.put("user.home", userHome.toString());
+  }
+
   @Test
   public void testManagedCloudSdk_fixedVersion()
       throws BadCloudSdkVersionException, UnsupportedOsException, IOException, CommandExitException,
           InterruptedException, ManagedSdkVerificationException, ManagedSdkVersionMismatchException,
           CommandExecutionException, SdkInstallerException {
     ManagedCloudSdk testSdk =
-        new ManagedCloudSdk(
-            new Version(FIXED_VERSION), tempDir.getRoot().toPath(), OsInfo.getSystemOsInfo());
+        new ManagedCloudSdk(new Version(FIXED_VERSION), userHome, OsInfo.getSystemOsInfo());
 
     Assert.assertFalse(testSdk.isInstalled());
     Assert.assertFalse(testSdk.hasComponent(testComponent));
@@ -99,7 +110,7 @@ public class ManagedCloudSdkTest {
           ManagedSdkVersionMismatchException, InterruptedException, CommandExecutionException,
           CommandExitException, IOException, SdkInstallerException {
     ManagedCloudSdk testSdk =
-        new ManagedCloudSdk(Version.LATEST, tempDir.getRoot().toPath(), OsInfo.getSystemOsInfo());
+        new ManagedCloudSdk(Version.LATEST, userHome, OsInfo.getSystemOsInfo());
 
     Assert.assertFalse(testSdk.isInstalled());
     Assert.assertFalse(testSdk.isUpToDate());
@@ -130,14 +141,13 @@ public class ManagedCloudSdkTest {
     Assert.assertTrue(testSdk.isUpToDate());
   }
 
-  private static final Path CLOUD_SDK_PARTIAL_PATH =
-      Paths.get("google-cloud-tools-java").resolve("managed-cloud-sdk");
+  private static final Path CLOUD_SDK_PARTIAL_PATH = Paths.get("google/ct4j-cloud-sdk");
+  private static final Path DEPRECATED_CLOUD_SDK_PARTIAL_PATH =
+      Paths.get("google-cloud-tools-java/managed-cloud-sdk");
 
   @Test
   public void testGetOsSpecificManagedSdk_windowsStandard() throws IOException {
-    Path userHome = tempDir.getRoot().toPath();
     Path localAppData = Files.createDirectories(userHome.resolve("AppData").resolve("Local"));
-    Properties fakeProperties = getFakeProperties(userHome.toString());
     Path windowsPath =
         ManagedCloudSdk.getOsSpecificManagedSdkHome(
             OsInfo.Name.WINDOWS,
@@ -149,46 +159,35 @@ public class ManagedCloudSdkTest {
 
   @Test
   public void testGetOsSpecificManagedSdk_macStandard() throws IOException {
-    Path userHome = tempDir.getRoot().toPath();
-    Properties fakeProperties = getFakeProperties(userHome.toString());
     Path expectedPath =
         Files.createDirectories(userHome.resolve("Library").resolve("Application Support"));
     Path macPath =
-        ManagedCloudSdk.getOsSpecificManagedSdkHome(
-            OsInfo.Name.MAC, fakeProperties, Collections.<String, String>emptyMap());
+        ManagedCloudSdk.getOsSpecificManagedSdkHome(OsInfo.Name.MAC, fakeProperties, EMPTY_MAP);
     Assert.assertEquals(expectedPath.resolve(CLOUD_SDK_PARTIAL_PATH), macPath);
   }
 
   @Test
   public void testGetOsSpecificManagedSdk_linuxStandard() {
-    Path userHome = tempDir.getRoot().toPath();
-    Properties fakeProperties = getFakeProperties(userHome.toString());
     Path expectedPath = userHome.resolve(".cache").resolve(CLOUD_SDK_PARTIAL_PATH);
 
     Path linuxPath =
-        ManagedCloudSdk.getOsSpecificManagedSdkHome(
-            OsInfo.Name.LINUX, fakeProperties, Collections.<String, String>emptyMap());
+        ManagedCloudSdk.getOsSpecificManagedSdkHome(OsInfo.Name.LINUX, fakeProperties, EMPTY_MAP);
     Assert.assertEquals(expectedPath, linuxPath);
   }
 
   @Test
   public void testGetOsSpecificManagedSdk_windowsFallbackLocalAppDataEnvNotSet() {
-    Path userHome = tempDir.getRoot().toPath();
-    Properties fakeProperties = getFakeProperties(userHome.toString());
     Path expectedPath = userHome.resolve(".cache").resolve(CLOUD_SDK_PARTIAL_PATH);
 
     Path windowsPath =
-        ManagedCloudSdk.getOsSpecificManagedSdkHome(
-            OsInfo.Name.WINDOWS, fakeProperties, Collections.<String, String>emptyMap());
+        ManagedCloudSdk.getOsSpecificManagedSdkHome(OsInfo.Name.WINDOWS, fakeProperties, EMPTY_MAP);
 
     Assert.assertEquals(expectedPath, windowsPath);
   }
 
   @Test
   public void testGetOsSpecificManagedSdk_windowsFallbackLocalAppDataDoesntExist() {
-    Path userHome = tempDir.getRoot().toPath();
     Path localAppData = userHome.resolve("AppData").resolve("Local"); // not created
-    Properties fakeProperties = getFakeProperties(userHome.toString());
     Path expectedPath = userHome.resolve(".cache").resolve(CLOUD_SDK_PARTIAL_PATH);
 
     Path windowsPath =
@@ -202,20 +201,159 @@ public class ManagedCloudSdkTest {
 
   @Test
   public void testGetOsSpecificManagedSdk_macFallback() {
-    Path userHome = tempDir.getRoot().toPath();
-    Properties fakeProperties = getFakeProperties(userHome.toString());
     Path expectedPath = userHome.resolve(".cache").resolve(CLOUD_SDK_PARTIAL_PATH);
 
     Path macPath =
-        ManagedCloudSdk.getOsSpecificManagedSdkHome(
-            OsInfo.Name.MAC, fakeProperties, Collections.<String, String>emptyMap());
+        ManagedCloudSdk.getOsSpecificManagedSdkHome(OsInfo.Name.MAC, fakeProperties, EMPTY_MAP);
     Assert.assertEquals(expectedPath, macPath);
   }
 
-  private static Properties getFakeProperties(String userHome) {
-    Properties properties = new Properties();
-    properties.put("user.home", userHome);
-    return properties;
+  @Test
+  public void testGetOsSpecificManagedSdkCandidates_windowsStandard() throws IOException {
+    Path localAppData = Files.createDirectories(userHome.resolve("AppData").resolve("Local"));
+    Path xdgPath = userHome.resolve(".cache").resolve(Paths.get("a/bc"));
+
+    List<Path> candidates =
+        ManagedCloudSdk.getOsSpecificManagedSdkHomeCandidates(
+            OsInfo.Name.WINDOWS,
+            fakeProperties,
+            ImmutableMap.of("LOCALAPPDATA", localAppData.toString()),
+            Paths.get("a/bc"));
+    Assert.assertEquals(Arrays.asList(localAppData.resolve("a/bc"), xdgPath), candidates);
+  }
+
+  @Test
+  public void testGetOsSpecificManagedSdkCandidates_windowsLocalAppDataEnvNotSet() {
+    Path xdgPath = userHome.resolve(".cache").resolve(Paths.get("a/bc"));
+
+    List<Path> candidates =
+        ManagedCloudSdk.getOsSpecificManagedSdkHomeCandidates(
+            OsInfo.Name.WINDOWS, fakeProperties, EMPTY_MAP, Paths.get("a/bc"));
+    Assert.assertEquals(Arrays.asList(xdgPath), candidates);
+  }
+
+  @Test
+  public void testGetOsSpecificManagedSdkCandidates_windowsLocalAppDataDoesntExist() {
+    Path localAppData = userHome.resolve("AppData").resolve("Local"); // not created
+    Path xdgPath = userHome.resolve(".cache").resolve(Paths.get("a/bc"));
+
+    List<Path> candidates =
+        ManagedCloudSdk.getOsSpecificManagedSdkHomeCandidates(
+            OsInfo.Name.WINDOWS,
+            fakeProperties,
+            ImmutableMap.of("LOCALAPPDATA", localAppData.toString()),
+            Paths.get("a/bc"));
+    Assert.assertEquals(Arrays.asList(xdgPath), candidates);
+  }
+
+  @Test
+  public void testGetOsSpecificManagedSdkCandidates_linux() {
+    Path xdgPath = userHome.resolve(".cache").resolve(Paths.get("a/bc"));
+
+    List<Path> candidates =
+        ManagedCloudSdk.getOsSpecificManagedSdkHomeCandidates(
+            OsInfo.Name.LINUX, fakeProperties, EMPTY_MAP, Paths.get("a/bc"));
+
+    Assert.assertEquals(Arrays.asList(xdgPath), candidates);
+  }
+
+  @Test
+  public void testGetOsSpecificManagedSdkCandidates_macStandard() throws IOException {
+    Path applicationSupport =
+        Files.createDirectories(userHome.resolve("Library").resolve("Application Support"));
+    Path xdgPath = userHome.resolve(".cache").resolve(Paths.get("a/bc"));
+
+    List<Path> candidates =
+        ManagedCloudSdk.getOsSpecificManagedSdkHomeCandidates(
+            OsInfo.Name.MAC, fakeProperties, EMPTY_MAP, Paths.get("a/bc"));
+
+    Assert.assertEquals(Arrays.asList(applicationSupport.resolve("a/bc"), xdgPath), candidates);
+  }
+
+  @Test
+  public void testGetOsSpecificManagedSdkCandidates_macFallback() {
+    Path xdgPath = userHome.resolve(".cache").resolve(Paths.get("a/bc"));
+
+    List<Path> candidates =
+        ManagedCloudSdk.getOsSpecificManagedSdkHomeCandidates(
+            OsInfo.Name.MAC, fakeProperties, EMPTY_MAP, Paths.get("a/bc"));
+
+    Assert.assertEquals(Arrays.asList(xdgPath), candidates);
+  }
+
+  @Test
+  public void testGetOsSpecificDeprecatedManagedSdkCandidates_windowsStandard() throws IOException {
+    Path localAppData = Files.createDirectories(userHome.resolve("AppData").resolve("Local"));
+    Path xdgPath = userHome.resolve(".cache").resolve(DEPRECATED_CLOUD_SDK_PARTIAL_PATH);
+
+    List<Path> candidates =
+        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkHomeCandidates(
+            OsInfo.Name.WINDOWS,
+            fakeProperties,
+            ImmutableMap.of("LOCALAPPDATA", localAppData.toString()));
+    Assert.assertEquals(
+        Arrays.asList(localAppData.resolve(DEPRECATED_CLOUD_SDK_PARTIAL_PATH), xdgPath),
+        candidates);
+  }
+
+  @Test
+  public void testGetOsSpecificDeprecatedManagedSdkCandidates_windowsLocalAppDataEnvNotSet() {
+    Path xdgPath = userHome.resolve(".cache").resolve(DEPRECATED_CLOUD_SDK_PARTIAL_PATH);
+
+    List<Path> candidates =
+        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkHomeCandidates(
+            OsInfo.Name.WINDOWS, fakeProperties, EMPTY_MAP);
+    Assert.assertEquals(Arrays.asList(xdgPath), candidates);
+  }
+
+  @Test
+  public void testGetOsSpecificDeprecatedManagedSdkCandidates_windowsLocalAppDataDoesntExist() {
+    Path localAppData = userHome.resolve("AppData").resolve("Local"); // not created
+    Path xdgPath = userHome.resolve(".cache").resolve(DEPRECATED_CLOUD_SDK_PARTIAL_PATH);
+
+    List<Path> candidates =
+        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkHomeCandidates(
+            OsInfo.Name.WINDOWS,
+            fakeProperties,
+            ImmutableMap.of("LOCALAPPDATA", localAppData.toString()));
+    Assert.assertEquals(Arrays.asList(xdgPath), candidates);
+  }
+
+  @Test
+  public void testGetOsSpecificDeprecatedManagedSdkCandidates_linux() {
+    Path xdgPath = userHome.resolve(".cache").resolve(DEPRECATED_CLOUD_SDK_PARTIAL_PATH);
+
+    List<Path> candidates =
+        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkHomeCandidates(
+            OsInfo.Name.LINUX, fakeProperties, EMPTY_MAP);
+
+    Assert.assertEquals(Arrays.asList(xdgPath), candidates);
+  }
+
+  @Test
+  public void testGetOsSpecificDeprecatedManagedSdkCandidates_macStandard() throws IOException {
+    Path applicationSupport =
+        Files.createDirectories(userHome.resolve("Library").resolve("Application Support"));
+    Path xdgPath = userHome.resolve(".cache").resolve(DEPRECATED_CLOUD_SDK_PARTIAL_PATH);
+
+    List<Path> candidates =
+        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkHomeCandidates(
+            OsInfo.Name.MAC, fakeProperties, EMPTY_MAP);
+
+    Assert.assertEquals(
+        Arrays.asList(applicationSupport.resolve(DEPRECATED_CLOUD_SDK_PARTIAL_PATH), xdgPath),
+        candidates);
+  }
+
+  @Test
+  public void testGetOsSpecificDeprecatedManagedSdkCandidates_macFallback() {
+    Path xdgPath = userHome.resolve(".cache").resolve(DEPRECATED_CLOUD_SDK_PARTIAL_PATH);
+
+    List<Path> candidates =
+        ManagedCloudSdk.getOsSpecificDeprecatedManagedSdkHomeCandidates(
+            OsInfo.Name.MAC, fakeProperties, EMPTY_MAP);
+
+    Assert.assertEquals(Arrays.asList(xdgPath), candidates);
   }
 
   private void downgradeCloudSdk(ManagedCloudSdk testSdk)
