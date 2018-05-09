@@ -32,7 +32,9 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 /** Tests for {@link SdkInstaller} */
 @RunWith(MockitoJUnitRunner.class)
@@ -94,7 +96,7 @@ public class SdkInstallerTest {
     Mockito.doReturn(successfulDownloader)
         .when(successfulDownloaderFactory)
         .newDownloader(fakeArchiveSource, fakeArchiveDestination, progressListener);
-    Mockito.doAnswer(unused -> createPath(fakeArchiveDestination, false))
+    Mockito.doAnswer(createPathAnswer(fakeArchiveDestination, false))
         .when(successfulDownloader)
         .download();
 
@@ -103,8 +105,7 @@ public class SdkInstallerTest {
         .when(successfulLatestExtractorFactory)
         .newExtractor(fakeArchiveDestination, fakeArchiveExtractionDestination, progressListener);
     Mockito.doAnswer(
-            unused ->
-                createPath(fakeArchiveExtractionDestination.resolve("google-cloud-sdk"), true))
+            createPathAnswer(fakeArchiveExtractionDestination.resolve("google-cloud-sdk"), true))
         .when(successfulLatestExtractor)
         .extract();
 
@@ -112,14 +113,14 @@ public class SdkInstallerTest {
     Mockito.doReturn(successfulVersionedExtractor)
         .when(successfulVersionedExtractorFactory)
         .newExtractor(fakeArchiveDestination, fakeArchiveExtractionDestination, progressListener);
-    Mockito.doAnswer(unused -> createPath(fakeGcloud, false))
+    Mockito.doAnswer(createPathAnswer(fakeGcloud, false))
         .when(successfulVersionedExtractor)
         .extract();
 
     Mockito.doReturn(successfulInstaller)
         .when(successfulInstallerFactory)
         .newInstaller(fakeSdkHome, progressListener, consoleListener);
-    Mockito.doAnswer(unused -> createPath(fakeGcloud, false)).when(successfulInstaller).install();
+    Mockito.doAnswer(createPathAnswer(fakeGcloud, false)).when(successfulInstaller).install();
 
     // FAIL (NO-OP) MOCKS
     Mockito.doReturn(Mockito.mock(Downloader.class))
@@ -135,17 +136,22 @@ public class SdkInstallerTest {
         .newInstaller(fakeSdkHome, progressListener, consoleListener);
   }
 
-  private Void createPath(Path pathToCreate, boolean isDirectory) throws IOException {
-    if (!pathToCreate.startsWith(testDir.getRoot().toPath())) {
-      throw new IllegalArgumentException("Test should not create files outside the test root");
-    }
-    if (isDirectory) {
-      Files.createDirectories(pathToCreate);
-    } else {
-      Files.createDirectories(pathToCreate.getParent());
-      Files.createFile(pathToCreate);
-    }
-    return null;
+  private Answer<Void> createPathAnswer(Path pathToCreate, boolean isDirectory) {
+    return new Answer<Void>() {
+      @Override
+      public Void answer(InvocationOnMock invocation) throws Throwable {
+        if (!pathToCreate.startsWith(testDir.getRoot().toPath())) {
+          throw new IllegalArgumentException("Test should not create files outside the test root");
+        }
+        if (isDirectory) {
+          Files.createDirectories(pathToCreate);
+        } else {
+          Files.createDirectories(pathToCreate.getParent());
+          Files.createFile(pathToCreate);
+        }
+        return null;
+      }
+    };
   }
 
   @Test

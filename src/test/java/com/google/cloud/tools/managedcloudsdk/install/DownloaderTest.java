@@ -161,17 +161,20 @@ public class DownloaderTest {
     // junit reuses threads.
     Thread testThreadToInterrupt =
         new Thread(
-            () -> {
-              Downloader downloader =
-                  new Downloader(fakeRemoteResource, destination, null, mockProgressListener);
-              Thread.currentThread().interrupt();
-              try {
-                downloader.download();
-                Assert.fail("InterruptedException expected but not thrown.");
-              } catch (InterruptedException ex) {
-                Assert.assertEquals("Download was interrupted", ex.getMessage());
-              } catch (IOException e) {
-                Assert.fail("Test failed due to IOException");
+            new Runnable() {
+              @Override
+              public void run() {
+                Downloader downloader =
+                    new Downloader(fakeRemoteResource, destination, null, mockProgressListener);
+                Thread.currentThread().interrupt();
+                try {
+                  downloader.download();
+                  Assert.fail("InterruptedException expected but not thrown.");
+                } catch (InterruptedException ex) {
+                  Assert.assertEquals("Download was interrupted", ex.getMessage());
+                } catch (IOException e) {
+                  Assert.fail("Test failed due to IOException");
+                }
               }
             });
     testThreadToInterrupt.start();

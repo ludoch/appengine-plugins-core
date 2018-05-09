@@ -27,7 +27,9 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExtractorTest {
@@ -42,10 +44,13 @@ public class ExtractorTest {
     Path extractionSource = tmp.newFile("fake.archive").toPath();
 
     Mockito.doAnswer(
-            unused -> {
-              Files.createDirectory(extractionDestination.resolve("some-dir"));
-              Files.createFile(extractionDestination.resolve("some-file"));
-              return null;
+            new Answer<Void>() {
+              @Override
+              public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
+                Files.createDirectory(extractionDestination.resolve("some-dir"));
+                Files.createFile(extractionDestination.resolve("some-file"));
+                return null;
+              }
             })
         .when(mockExtractorProvider)
         .extract(extractionSource, extractionDestination, mockProgressListener);
@@ -67,11 +72,14 @@ public class ExtractorTest {
     Path extractionSource = tmp.newFile("fake.archive").toPath();
 
     Mockito.doAnswer(
-            unused -> {
-              // pretend to extract by creating the expected final directory (for success!)
-              Files.createDirectory(extractionDestination.resolve("some-dir"));
-              Files.createFile(extractionDestination.resolve("some-file"));
-              throw new IOException("Failed during extraction");
+            new Answer<Void>() {
+              @Override
+              public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
+                // pretend to extract by creating the expected final directory (for success!)
+                Files.createDirectory(extractionDestination.resolve("some-dir"));
+                Files.createFile(extractionDestination.resolve("some-file"));
+                throw new IOException("Failed during extraction");
+              }
             })
         .when(mockExtractorProvider)
         .extract(extractionSource, extractionDestination, mockProgressListener);
