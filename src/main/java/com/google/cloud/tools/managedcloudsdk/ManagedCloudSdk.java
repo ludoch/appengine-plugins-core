@@ -214,7 +214,7 @@ public class ManagedCloudSdk {
   /**
    * Returns candidate SDK home locations for the given OS. Always returns at least one candidate.
    *
-   * @return a list of candidate {@code Path} in reverse order of suggested preference (callers
+   * @return a list of candidates {@code Path} in reverse order of suggested preference (callers
    *     should prefer the first path in the list)
    */
   @VisibleForTesting
