@@ -95,10 +95,10 @@
   <build>
     <pluginManagement>
       <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.6.1</version>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.6.1</version>
         <configuration>
           <compilerId>javac-with-errorprone</compilerId>
           <forceJavacCompilerUse>true</forceJavacCompilerUse>
@@ -269,6 +269,20 @@
                 <dependencyConvergence/>
               </rules>
             </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>3.0.1</version>
+        <executions>
+          <execution>
+            <id>bundle-manifest</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>manifest</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>
