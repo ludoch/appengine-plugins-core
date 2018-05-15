@@ -91,4 +91,84 @@
     </dependencies>
   </dependencyManagement>
 
+  <!-- This only works for inheritance; not import???? -->
+  <build>
+    <pluginManagement>
+      <plugins>
+        <!-- for development support in Eclipse IDE -->
+        <plugin>
+        <groupId>org.eclipse.m2e</groupId>
+        <artifactId>lifecycle-mapping</artifactId>
+        <version>1.0.0</version>
+        <configuration>
+          <lifecycleMappingMetadata>
+            <pluginExecutions>
+              <!-- m2eclipse does not support errorprone -->
+              <pluginExecution>
+                <pluginExecutionFilter>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-compiler-plugin</artifactId>
+                  <versionRange>[3.3,)</versionRange>
+                  <goals>
+                    <goal>compile</goal>
+                    <goal>testCompile</goal>
+                  </goals>
+                  <parameters>
+                    <compilerId>javac-with-errorprone</compilerId>
+                  </parameters>
+                </pluginExecutionFilter>
+                <action>
+                  <configurator>
+                    <id>org.eclipse.m2e.jdt.javaConfigurator</id>
+                  </configurator>
+                </action>
+              </pluginExecution>
+              <!-- m2e does not support fmt-maven-plugin -->
+              <pluginExecution>
+                <pluginExecutionFilter>
+                  <groupId>com.coveo</groupId>
+                  <artifactId>fmt-maven-plugin</artifactId>
+                  <versionRange>[0.0,)</versionRange>
+                  <goals>
+                    <goal>check</goal>
+                  </goals>
+                </pluginExecutionFilter>
+                <action>
+                  <execute>
+                    <runOnIncremental>true</runOnIncremental>
+                  </execute>
+                </action>
+              </pluginExecution>
+            </pluginExecutions>
+          </lifecycleMappingMetadata>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.coveo</groupId>
+        <artifactId>fmt-maven-plugin</artifactId>
+        <version>2.4.0</version>
+        <!-- use fmt:format to auto format -->
+        <dependencies>
+          <dependency>
+            <groupId>com.google.googlejavaformat</groupId>
+            <artifactId>google-java-format</artifactId>
+            <version>1.5</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <displayFiles>true</displayFiles>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>validate</phase>
+            <goals>
+              <goal>format</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </pluginManagement>
+  </build>
+
 </project>
