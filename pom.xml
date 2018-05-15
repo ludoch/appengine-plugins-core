@@ -5,6 +5,11 @@
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <groupId>com.google.cloud.tools</groupId>
+  <artifactId>appengine-plugins-core</artifactId>
+  <version>0.6.1-SNAPSHOT</version>
+
+  <!-- inherit the parent POM/BOM -->
   <parent>
     <groupId>com.google.cloud</groupId>
     <artifactId>parent-pom</artifactId>
@@ -12,9 +17,22 @@
     <relativePath>parent-pom/pom.xml</relativePath>
   </parent>
 
-  <groupId>com.google.cloud.tools</groupId>
-  <artifactId>appengine-plugins-core</artifactId>
-  <version>0.6.1-SNAPSHOT</version>
+  <!-- import the parent POM/BOM. -->
+  <!-- For now this requires first installing the parent POM locally
+       with `mvn clean install`. -->
+  <!--
+  <dependencyManagement>
+    <dependencies>
+     <dependency>
+       <groupId>com.google.cloud</groupId>
+       <artifactId>parent-pom</artifactId>
+       <version>0.0.1-SNAPSHOT</version>
+       <type>pom</type>
+       <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  -->
 
   <name>App Engine Plugins Core Library</name>
   <description>
