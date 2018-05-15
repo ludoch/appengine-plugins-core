@@ -91,7 +91,7 @@
     </dependencies>
   </dependencyManagement>
 
-  <!-- This only works for inheritance; not import???? -->
+  <!-- This only works for inheritance, not import. -->
   <build>
     <pluginManagement>
       <plugins>

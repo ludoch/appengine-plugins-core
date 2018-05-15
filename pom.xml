@@ -19,7 +19,10 @@
 
   <!-- import the parent POM/BOM. -->
   <!-- For now this requires first installing the parent POM locally
-       with `mvn clean install`. -->
+       with `mvn clean install`. This only sets dependency versions.
+       It does not provide plugin configuration. That must be done in
+       the parent POM. We could separate depedency versions into a BOM
+       and pluginManagement in a parent POM. -->
   <!--
   <dependencyManagement>
     <dependencies>
